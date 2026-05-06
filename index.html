@@ -59,7 +59,7 @@ body::before{
   letter-spacing:1.5px;text-transform:uppercase;
 }
 
-.container{max-width:1100px;margin:40px auto;padding:0 24px;position:relative;z-index:1}
+.container{max-width:1400px;margin:40px auto;padding:0 24px;position:relative;z-index:1}
 
 /* CARD FORM */
 .card{
@@ -254,25 +254,34 @@ input:focus,select:focus{
 
 <div class="container">
 
-  <div class="card">
-    <div class="section-title">🔍 Consulta de Cliente</div>
-    <div class="section-sub">Selecione o tipo de dado e informe o valor para localizar o cliente no sistema.</div>
+  <div style="display:flex;gap:16px;align-items:stretch;flex-wrap:wrap;">
 
-    <div class="form-group">
-      <label>Tipo de busca</label>
-      <select id="tipoBusca" onchange="alterarCampos()">
-        <option value="idLead" selected>ID Lead</option>
-      </select>
+    <div class="card" style="flex:1;min-width:260px;">
+      <div class="section-title">🔍 Consulta de Cliente</div>
+      <div class="section-sub">Selecione o tipo de dado e informe o valor para localizar o cliente no sistema.</div>
+
+      <div class="form-group">
+        <label>Tipo de busca</label>
+        <select id="tipoBusca" onchange="alterarCampos()">
+          <option value="idLead" selected>ID Lead</option>
+        </select>
+      </div>
+
+      <div id="camposBusca"></div>
+
+      <div class="buttons">
+        <button class="btn-primary" onclick="buscarCliente()">
+          <span>⚡</span> Buscar Cliente
+        </button>
+        <button class="btn-secondary" onclick="novaBusca()">↻ Nova Busca</button>
+      </div>
     </div>
 
-    <div id="camposBusca"></div>
-
-    <div class="buttons">
-      <button class="btn-primary" onclick="buscarCliente()">
-        <span>⚡</span> Buscar Cliente
-      </button>
-      <button class="btn-secondary" onclick="novaBusca()">↻ Nova Busca</button>
+    <div id="painelInfo" class="card hidden" style="flex:1;min-width:260px;">
+      <div class="section-title">📋 Dados da Pesquisa</div>
+      <div id="infoConteudo"></div>
     </div>
+
   </div>
 
   <div id="loadingState" class="loading hidden">
@@ -291,6 +300,20 @@ input:focus,select:focus{
 </div>
 
 <script>
+const cidadeMap = {
+  "3572": "Lorena",
+  "3414": "Cruzeiro",
+  "3697": "Piquete",
+  "3566": "Lavrinhas",
+  "3379": "Canas",
+  "3474": "Guaratinguetá",
+  "3693": "Pindamonhangaba",
+  "3736": "Queluz",
+  "3763": "Roseira",
+  "3363": "Cachoeira Paulista",
+  "3293": "Aparecida"
+}
+
 function alterarCampos(){
   const tipo = document.getElementById("tipoBusca").value
   const container = document.getElementById("camposBusca")
@@ -305,12 +328,12 @@ function alterarCampos(){
         </div>
         <div class="col">
           <label>Número</label>
-          <input type="text" id="numero" placeholder="Ex: 549">
+          <input type="text" id="numero" placeholder="Ex: 340">
         </div>
       </div>
       <div class="form-group">
         <label>Rua</label>
-        <input type="text" id="rua" placeholder="Ex: Rua João Pedro I">
+        <input type="text" id="rua" placeholder="Ex: Rua São Miguel">
       </div>
     `
   } else {
@@ -401,6 +424,51 @@ async function buscarCliente(){
 
     const clientes = Array.isArray(data) ? data : (data.clientes || [])
 
+    // Exibe painel de info
+    const info = data.info && (Array.isArray(data.info) ? data.info[0] : data.info)
+    if (info) {
+      const cidade = cidadeMap[String(info.Id_cidade)] || info.Id_cidade || ""
+
+      const html = `
+        <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #e5e7eb;">
+          <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">👤 Nome</div>
+          <div style="font-size:18px;font-weight:700;color:#1f2937;">${escapeHtml(info.Nome || "—")}</div>
+        </div>
+        <div style="display:flex;gap:16px;">
+          <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+            ${info.Cpf ? `<div>
+              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">#️⃣ CPF</div>
+              <div style="font-size:14px;font-weight:500;color:#1f2937;font-family:monospace;">${escapeHtml(info.Cpf)}</div>
+            </div>` : ""}
+            ${info.Telefone ? `<div>
+              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">📞 Telefone</div>
+              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(info.Telefone)}</div>
+            </div>` : ""}
+            ${info.Email ? `<div>
+              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">📧 E-mail</div>
+              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(info.Email)}</div>
+            </div>` : ""}
+          </div>
+          <div style="width:1px;background:#e5e7eb;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+            ${cidade ? `<div>
+              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">🏙️ Cidade</div>
+              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(cidade)}</div>
+            </div>` : ""}
+            ${info.Cep ? `<div>
+              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">📍 CEP</div>
+              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(info.Cep)}</div>
+            </div>` : ""}
+            ${info.Numero_casa ? `<div>
+              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">🏠 Nº Casa</div>
+              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(info.Numero_casa)}</div>
+            </div>` : ""}
+          </div>
+        </div>`
+      document.getElementById("infoConteudo").innerHTML = html
+      document.getElementById("painelInfo").classList.remove("hidden")
+    }
+
     if(clientes.length > 0){
       renderClientes(clientes)
     } else {
@@ -438,7 +506,6 @@ function renderClientes(clientes){
 
   const grid = document.getElementById("clientesGrid")
   grid.innerHTML = ""
-
   clientes.forEach((c, i) => {
     const ativo = c.statusCliente === "S"
     const card = document.createElement("div")
@@ -477,6 +544,7 @@ function renderClientes(clientes){
       <div class="client-card-address">
         <div class="info-label">Endereço</div>
         <div class="info-value">${endereco ? escapeHtml(endereco) : '—'}</div>
+        ${c.cepCliente ? `<div class="info-value mono" style="margin-top:2px;font-size:13px;color:#6b7280;">CEP: ${escapeHtml(c.cepCliente)}</div>` : ''}
       </div>
     `
     grid.appendChild(card)
@@ -495,6 +563,8 @@ function escapeHtml(str){
 function novaBusca(){
   document.getElementById("areaResultados").classList.add("hidden")
   document.getElementById("clientesGrid").innerHTML = ""
+  document.getElementById("painelInfo").classList.add("hidden")
+  document.getElementById("infoConteudo").innerHTML = ""
 }
 
 alterarCampos()
