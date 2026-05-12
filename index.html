@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src http://10.100.125.80:5678;">
   <title>Consulta de Cliente - DBNET</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link
@@ -507,8 +510,12 @@
       "3293": "Aparecida"
     }
 
+    const TIPOS_VALIDOS = ["idLead", "idProspect", "idCliente"]
+
     function alterarCampos() {
       const tipo = document.getElementById("tipoBusca").value
+      if (!TIPOS_VALIDOS.includes(tipo)) return
+
       const container = document.getElementById("camposBusca")
       container.innerHTML = ""
 
@@ -523,28 +530,48 @@
         idCliente: "ID Cliente"
       }
 
-      container.innerHTML = `
-        <div class="form-group">
-          <label>${labels[tipo]}</label>
-          <input type="text" id="valorBusca" placeholder="${placeholders[tipo]}"
-            oninput="this.value = this.value.replace(/\\D/g,'')">
-        </div>
-      `
+      const label = document.createElement("label")
+      label.textContent = labels[tipo]
+
+      const input = document.createElement("input")
+      input.type = "text"
+      input.id = "valorBusca"
+      input.placeholder = placeholders[tipo]
+      input.maxLength = 20
+      input.addEventListener("input", function () {
+        this.value = this.value.replace(/\D/g, "")
+      })
+
+      const group = document.createElement("div")
+      group.className = "form-group"
+      group.appendChild(label)
+      group.appendChild(input)
+      container.appendChild(group)
     }
 
-    async function buscarCliente() {
-      const tipo = document.getElementById("tipoBusca").value
-      let payload = { tipodaBusca: tipo, dados: {} }
+    let _ultimaBusca = 0
 
-      if (tipo === "endereco") {
-        payload.dados = {
-          cidade: document.getElementById("cidade").value,
-          rua: document.getElementById("rua").value,
-          numero: document.getElementById("numero").value
-        }
-      } else {
-        payload.dados[tipo] = document.getElementById("valorBusca").value
+    async function buscarCliente() {
+      const agora = Date.now()
+      if (agora - _ultimaBusca < 1000) return
+      _ultimaBusca = agora
+
+      const tipo = document.getElementById("tipoBusca").value
+      if (!TIPOS_VALIDOS.includes(tipo)) return
+
+      const valorEl = document.getElementById("valorBusca")
+      const valor = valorEl ? valorEl.value : ""
+      if (!valor || !/^\d{1,20}$/.test(valor)) {
+        document.getElementById("areaResultados").classList.remove("hidden")
+        document.getElementById("loadingState").classList.add("hidden")
+        document.getElementById("countClientes").textContent = "—"
+        document.getElementById("clientesGrid").innerHTML =
+          `<div class="empty-state"><div class="icon">⚠️</div><p>Informe um ID numérico válido</p></div>`
+        return
       }
+
+      let payload = { tipodaBusca: tipo, dados: {} }
+      payload.dados[tipo] = valor
 
       document.getElementById("areaResultados").classList.remove("hidden")
       document.getElementById("loadingState").classList.remove("hidden")
@@ -552,7 +579,7 @@
       document.getElementById("countClientes").textContent = "..."
 
       try {
-        const response = await fetch("http://10.100.125.80:5678/webhook/client-buscar", {
+        const response = await fetch("http://10.100.125.80:5678/webhook/client-finder-index", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -566,7 +593,7 @@
         catch (parseErr) {
           document.getElementById("countClientes").textContent = "Erro"
           document.getElementById("clientesGrid").innerHTML =
-            `<div class="empty-state"><div class="icon">⚠️</div><p>Resposta inválida</p><small style="font-family:monospace;word-break:break-all">${rawText.substring(0, 300)}</small></div>`
+            `<div class="empty-state"><div class="icon">⚠️</div><p>Resposta inválida do servidor</p><small style="font-family:monospace;word-break:break-all">${escapeHtml(rawText.substring(0, 300))}</small></div>`
           return
         }
 
@@ -629,7 +656,7 @@
         document.getElementById("loadingState").classList.add("hidden")
         document.getElementById("countClientes").textContent = "Erro"
         document.getElementById("clientesGrid").innerHTML =
-          `<div class="empty-state"><div class="icon">⚠️</div><p>Erro de conexão</p><small style="font-family:monospace">${String(error)}</small></div>`
+          `<div class="empty-state"><div class="icon">⚠️</div><p>Erro de conexão</p><small style="font-family:monospace">${escapeHtml(String(error))}</small></div>`
         console.error("FETCH ERROR:", error)
       }
     }
@@ -669,7 +696,7 @@
       <div class="client-card-header">
         <div class="name-block">
           <h3>${escapeHtml(c.nomeCompleto)}</h3>
-          <div class="id-tag">ID #${c.idCliente}</div>
+          <div class="id-tag">ID #${escapeHtml(String(c.idCliente))}</div>
         </div>
         <div style="display: flex; gap: 8px;">
           <div class="status-badge ${ativo ? 'status-ativo' : 'status-inativo'}">
@@ -681,13 +708,13 @@
               `<div class="status-badge status-boleto-nao">✓ SEM BOLETOS</div>` :
               ''
             )}
-          ${c.buscaEncontrada ? `<div class="status-badge status-busca">🔍 VIA ${String(c.buscaEncontrada).toUpperCase()}</div>` : ''}
+          ${c.buscaEncontrada ? `<div class="status-badge status-busca">🔍 VIA ${escapeHtml(String(c.buscaEncontrada).toUpperCase())}</div>` : ''}
         </div>
       </div>
       <div class="client-card-body">
         <div class="info-item">
           <div class="info-label">CPF / CNPJ</div>
-          <div class="info-value mono">${c.cpfCliente || '—'}</div>
+          <div class="info-value mono">${c.cpfCliente ? escapeHtml(String(c.cpfCliente)) : '—'}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Telefone</div>
@@ -715,6 +742,7 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
     }
 
     function novaBusca() {
