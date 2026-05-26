@@ -371,6 +371,7 @@
       margin-bottom: 2px;
     }
     .d-val { font-family: 'DM Mono', monospace; font-size: 13px; color: #1f2937; }
+    .d-wide { grid-column: span 2; min-width: 0; }
 
     /* ── ACTIONS ROW ── */
     .card-actions {
@@ -493,6 +494,27 @@
   </div>
 
   <script>
+    const CONDOMINIOS = {
+      1: "Cerejeiras", 2: "Mogno", 3: "Cedro", 4: "Salgueiro", 5: "Jacarandá",
+      6: "Pinus", 7: "Vistas da Mantiqueira", 8: "Reserva dos Lagos", 9: "Moema Ville",
+      10: "Residencial Jardins", 11: "Residencial Bonsucesso", 12: "Vereda dos Manacás",
+      13: "Parque Princesa do Vale", 14: "Edificio New Way", 15: "Parque das Gardênias",
+      16: "Residencial Flamboyant", 17: "Vista das Paineiras", 18: "Vista Verde",
+      19: "Residencial das Palmeiras", 20: "Reserva do Vale", 21: "SPA Mediterraneo",
+      22: "New Life", 23: "Convívio Lorena", 24: "Residencial Mantiqueira",
+      25: "Residencial Mantiqueira", 26: "Reserva Anauá", 27: "Condominio Maori Home Work",
+      28: "Residencial Santa Monica", 29: "Vita Village Residence", 30: "Condomínio Costa Esmeralda",
+      31: "Home Club Splendore", 32: "Prédio Z", 33: "Edificio Bela Vista",
+      34: "Terraço da Serra", 35: "Edificio Maori", 36: "Edificio Le Quartier",
+      37: "Edificio Oswaldo Aranha", 38: "Edificio Isis", 39: "Edificio Del Valle",
+      40: "Edificil Valência", 41: "Araretama", 42: "HOTEL GUARA INN",
+      43: "Condomínio Morada da Serra", 44: "Reserva Born Viver", 46: "Residencial Maggiore",
+      47: "Morada Lorena", 48: "Condomínio Morada Lorena", 49: "Residencial Colinas de Lorena",
+      50: "Residencial Bosque dos Ipês", 51: "Residencial Turquesa", 52: "Prédio da RCC",
+      53: "CDHU Vila Mariana", 54: "Colinas da Mantiqueira", 55: "Condominio Mata Atlantica 2",
+      56: "Condominio Residencial EcoVale", 57: "Condominio Mata Atlantica 1", 58: "Condominio Serra Verde"
+    }
+
     const CIDADES = {
       "3293": "Aparecida",
       "3363": "Cachoeira Paulista",
@@ -580,7 +602,7 @@
       document.getElementById("countClientes").textContent = "..."
 
       try {
-        const response = await fetch("https://n8n.dbnet.com.vc/webhook/client-finder-index", {
+        const response = await fetch("https://n8n.dbnet.com.vc/webhook/busca-testes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -612,7 +634,7 @@
           if (cidade)            linha2.push({ lbl: "Cidade",     val: cidade })
           if (info.bloco)        linha2.push({ lbl: "Bloco",      val: info.bloco })
           if (info.apartamento)  linha2.push({ lbl: "Apto",       val: info.apartamento })
-          if (info.idCondominio && String(info.idCondominio) !== "0") linha2.push({ lbl: "Condomínio", val: info.idCondominio })
+          if (info.idCondominio && String(info.idCondominio) !== "0") linha2.push({ lbl: "Condomínio", val: CONDOMINIOS[Number(info.idCondominio)] || info.idCondominio })
 
           const renderRow = items => items.map((f, idx) => `
             ${idx > 0 ? '<div class="i-sep"></div>' : ''}
@@ -723,11 +745,11 @@
           <div class="card-details" id="det-${i}">
             <div class="card-details-grid">
               ${c.cpfCliente    ? `<div><div class="d-lbl">CPF / CNPJ</div><div class="d-val">${escapeHtml(String(c.cpfCliente))}</div></div>`        : ""}
-              ${endereco        ? `<div><div class="d-lbl">Endereço</div><div class="d-val">${escapeHtml(endereco)}</div></div>`                       : ""}
+              ${endereco        ? `<div class="d-wide"><div class="d-lbl">Endereço</div><div class="d-val">${escapeHtml(endereco)}</div></div>`          : ""}
               ${c.cepCliente    ? `<div><div class="d-lbl">CEP</div><div class="d-val">${escapeHtml(c.cepCliente)}</div></div>`                        : ""}
               ${c.bloco         ? `<div><div class="d-lbl">Bloco</div><div class="d-val">${escapeHtml(String(c.bloco))}</div></div>`                   : ""}
               ${c.apartamento   ? `<div><div class="d-lbl">Apartamento</div><div class="d-val">${escapeHtml(String(c.apartamento))}</div></div>`       : ""}
-              ${c.idCondominio && String(c.idCondominio) !== "0" ? `<div><div class="d-lbl">Condomínio</div><div class="d-val">${escapeHtml(String(c.idCondominio))}</div></div>` : ""}
+              ${c.idCondominio && String(c.idCondominio) !== "0" ? `<div><div class="d-lbl">Condomínio</div><div class="d-val">${escapeHtml(CONDOMINIOS[Number(c.idCondominio)] || String(c.idCondominio))}</div></div>` : ""}
             </div>
           </div>` : ""
 
