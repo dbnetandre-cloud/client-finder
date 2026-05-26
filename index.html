@@ -6,31 +6,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src http://10.100.125.80:5678;">
-  <title>Consulta Clientes - DBNET </title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src https://n8n.dbnet.com.vc; frame-ancestors 'none'; object-src 'none';">
+  <title>Consulta de Cliente - DBNET</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --green: #68d928;
-      --green-dim: #4db820;
-      --green-dim: #4db820;
-      --cyan: #00c8e0;
-      --dark: #080e14;
-      --card-bg: rgba(10, 20, 30, 0.75);
-      --card-border: rgba(104, 217, 40, 0.15);
-      --text: #e8f0e0;
-      --text-dim: #7a9070;
+      --green:       #68d928;
+      --green-glow:  rgba(104, 217, 40, 0.18);
+      --cyan:        #00c8e0;
+      --dark:        #070d13;
+      --s1:          #0c1620;
+      --s2:          #101c28;
+      --s3:          #152030;
+      --border:      rgba(255, 255, 255, 0.07);
+      --border-g:    rgba(104, 217, 40, 0.2);
+      --text:        #ddecd8;
+      --text-2:      #879e83;
+      --text-3:      #445840;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -47,371 +44,373 @@
       content: '';
       position: fixed;
       inset: 0;
-      background: rgba(4, 10, 16, 0.72);
+      background: rgba(4, 10, 16, 0.80);
       pointer-events: none;
       z-index: 0;
     }
 
+    /* ── TOP BAR ── */
     .top-bar {
       position: sticky;
       top: 0;
       z-index: 100;
-      height: 72px;
-      background: rgba(5, 12, 20, 0.9);
-      border-bottom: 2px solid #68d928;
-      backdrop-filter: blur(16px);
+      height: 60px;
+      background: rgba(6, 12, 19, 0.97);
+      border-bottom: 1px solid var(--border-g);
+      backdrop-filter: blur(20px);
       display: flex;
       align-items: center;
-      padding: 0 32px;
-      gap: 16px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(104, 217, 40, 0.1);
+      padding: 0 28px;
+      gap: 14px;
+      box-shadow: 0 1px 24px rgba(0, 0, 0, 0.5);
     }
-
-    .top-bar img {
-      height: 44px;
-      object-fit: contain
-    }
-
-    .top-bar .divider {
-      width: 1px;
-      height: 24px;
-      background: rgba(104, 217, 40, 0.2)
-    }
-
-    .top-bar .page-label {
+    .top-bar img        { height: 40px; object-fit: contain; }
+    .top-bar .divider   { width: 1px; height: 18px; background: var(--border-g); }
+    .top-bar .lbl       {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-dim);
-      letter-spacing: 1.5px;
+      font-size: 20px; font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: 2px;
       text-transform: uppercase;
     }
 
-    .container {
-      max-width: 1400px;
-      margin: 40px auto;
-      padding: 0 24px;
-      position: relative;
-      z-index: 1
-    }
+    /* ── CONTAINER ── */
+    .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; position: relative; z-index: 1; }
 
-    /* CARD FORM */
-    .card {
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 16px;
-      padding: 36px 40px;
-      margin-bottom: 28px;
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+    /* ── SEARCH PANEL ── */
+    .search-panel {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
-
-    .section-title {
+    .search-panel-lbl {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      color: #68d928;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
+      font-size: 19px; font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
     }
+    .search-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .tipo-col    { flex: 0 0 160px; }
+    .valor-col   { flex: 1; min-width: 160px; }
+    .actions-col { display: flex; gap: 8px; align-items: flex-end; }
 
-    .section-sub {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 28px
-    }
-
-    .form-group {
-      margin-bottom: 18px
-    }
+    .form-group  { margin-bottom: 0; }
 
     label {
       display: block;
+      font-size: 10px; font-weight: 700;
+      margin-bottom: 5px;
+      color: var(--text-3);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    input, select {
+      width: 100%;
+      padding: 0 12px;
+      height: 36px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--s2);
+      color: var(--text);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input::placeholder { color: var(--text-3); }
+    select option      { background: var(--s2); color: var(--text); }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 2px var(--green-glow);
+    }
+    #camposBusca .form-group { width: 100%; }
+
+    .btn-primary {
+      height: 36px;
+      background: var(--green);
+      color: #040d02;
+      padding: 0 20px;
+      border: none;
+      border-radius: 7px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700; font-size: 15px;
+      letter-spacing: .5px;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s, transform .1s;
+      display: flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+      box-shadow: 0 0 14px rgba(104, 217, 40, 0.2);
+    }
+    .btn-primary:hover  { background: #7ae030; box-shadow: 0 0 20px rgba(104, 217, 40, 0.4); }
+    .btn-primary:active { transform: scale(.97); }
+
+    .btn-secondary {
+      height: 36px;
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 0 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 16px; font-weight: 600;
+      color: var(--text-2);
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--border-g);
+      color: var(--text);
+      background: var(--s2);
+    }
+
+    /* ── INFO STRIP ── */
+    .info-strip {
+      background: var(--s1);
+      border: 1px solid var(--border-g);
+      border-left: 3px solid var(--green);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      animation: fadeSlide .25s ease;
+    }
+    .info-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .info-tag {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px; font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+    .info-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .info-name {
+      font-size: 14px; font-weight: 700;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .i-sep { width: 1px; height: 14px; background: var(--border); flex-shrink: 0; }
+    .i-field { display: flex; align-items: center; gap: 5px; }
+    .i-lbl {
+      font-size: 10px; font-weight: 700;
+      color: var(--text-3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .i-val {
+      font-family: 'DM Mono', monospace;
       font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #3d6b2a;
+      color: var(--text-2);
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    /* ── RESULTS HEADER ── */
+    .results-header { margin-bottom: 10px; padding: 0 2px; }
+    .results-count {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .results-count strong { color: var(--green); font-size: 18px; margin-right: 5px; }
+
+    /* ── CLIENTS GRID ── */
+    .clients-grid { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── CLIENT CARD ── */
+    .client-card {
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
+      transition: border-color .2s, box-shadow .2s;
+      animation: slideIn .3s ease both;
+    }
+    .client-card:hover {
+      border-color: rgba(104, 217, 40, 0.55);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+    /* Priority left-border */
+    .prio-high { border-left: 3px solid #4db820; }
+    .prio-med  { border-left: 3px solid #0891b2; }
+    .prio-low  { border-left: 3px solid #9ca3af; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0);   }
+    }
+
+    /* ── MATCH ROW ── */
+    .card-match {
+      padding: 8px 14px;
+      background: linear-gradient(90deg, #1a2e0a 0%, #68d928 100%);
+      border-bottom: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .match-via {
+      font-size: 11px; font-weight: 700;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .match-badges { display: flex; gap: 5px; flex-wrap: wrap; flex: 1; }
+    .mbadge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 3px;
       letter-spacing: .8px;
       text-transform: uppercase;
     }
+    .mb-cpf   { background: rgba(245,158,11,.9);  color: #1a0800; border: 1px solid #d97706; }
+    .mb-email { background: rgba(59,130,246,.85); color: #fff;    border: 1px solid #2563eb; }
+    .mb-tel   { background: rgba(6,182,212,.85);  color: #fff;    border: 1px solid #0891b2; }
+    .mb-end   { background: rgba(139,92,246,.85); color: #fff;    border: 1px solid #7c3aed; }
+    .mb-other { background: rgba(0,0,0,.3);       color: #fff;    border: 1px solid rgba(255,255,255,.25); }
+    .match-score { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .sc-high { color: #fff; }
+    .sc-med  { color: #d0f0ff; }
+    .sc-low  { color: rgba(255,255,255,.65); }
 
-    input,
-    select {
-      width: 100%;
-      padding: 13px 16px;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
-      font-size: 15px;
-      font-family: 'DM Sans', sans-serif;
-      background: #f9fafb;
+    /* ── MAIN ROW (name + id) ── */
+    .card-main {
+      padding: 12px 14px 5px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .client-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px; font-weight: 700;
       color: #1f2937;
-      transition: border-color .2s, box-shadow .2s;
+      letter-spacing: .3px;
+      line-height: 1.2;
+    }
+    .client-id {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #9ca3af;
+      flex-shrink: 0;
     }
 
-    input::placeholder {
-      color: #9ca3af
-    }
-
-    select option {
-      background: #f9fafb;
-      color: #1f2937
-    }
-
-    input:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(104, 217, 40, 0.12);
-    }
-
-    .row {
-      display: flex;
-      gap: 14px
-    }
-
-    .row .col {
-      flex: 1
-    }
-
-    .buttons {
-      margin-top: 6px;
-      display: flex;
-      gap: 12px
-    }
-
-    .btn-primary {
-      background: var(--green);
-      color: #060e04;
-      padding: 13px 28px;
-      border: none;
-      border-radius: 10px;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      font-size: 17px;
-      letter-spacing: .5px;
-      cursor: pointer;
-      transition: background .2s, transform .1s, box-shadow .2s;
+    /* ── STATUS ROW ── */
+    .card-status {
+      padding: 4px 14px 10px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 0 20px rgba(104, 217, 40, 0.3);
+      gap: 7px;
+      flex-wrap: wrap;
     }
-
-    .btn-primary:hover {
-      background: #7ae030;
-      box-shadow: 0 0 30px rgba(104, 217, 40, 0.5);
+    .badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 3px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
+    .b-ativo   { background: rgba(80,170,20,.12);  color: #2e6b10; border: 1px solid rgba(80,170,20,.35);  }
+    .b-inativo { background: rgba(220,38,38,.1);   color: #dc2626; border: 1px solid rgba(220,38,38,.3);   }
+    .b-boleto  { background: rgba(234,88,12,.1);   color: #c2410c; border: 1px solid rgba(234,88,12,.3);   }
+    .b-ok      { background: rgba(22,163,74,.1);   color: #15803d; border: 1px solid rgba(22,163,74,.3);   }
+    .status-sep { width: 1px; height: 12px; background: #e5e7eb; flex-shrink: 0; }
+    .fin-lbl    { font-size: 11px; font-weight: 700; color: #6b7280; letter-spacing: 1px; text-transform: uppercase; }
 
-    .btn-primary:active {
-      transform: scale(.98)
-    }
-
-    .btn-secondary {
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      padding: 13px 22px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      color: #6b7280;
-      transition: background .2s, color .2s;
-    }
-
-    .btn-secondary:hover {
-      background: #e5e7eb;
-      color: #374151
-    }
-
-    /* RESULTS HEADER */
-    .results-header {
+    /* ── CONTACT ROW ── */
+    .card-contact {
+      padding: 8px 14px;
+      background: #f8faf6;
+      border-top: 1px solid #e5e7eb;
       display: flex;
-      align-items: center;
-      margin-bottom: 16px;
-      padding: 0 4px;
+      gap: 16px;
+      flex-wrap: wrap;
     }
+    .contact-item { display: flex; align-items: center; gap: 6px; }
+    .c-icon  { font-size: 11px; opacity: .4; }
+    .c-value { font-family: 'DM Mono', monospace; font-size: 13px; color: #1f2937; }
 
-    .results-count {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 16px;
-      color: var(--text-dim);
-      letter-spacing: .5px;
+    /* ── DETAILS ── */
+    .card-details { overflow: hidden; }
+    .card-details-grid {
+      padding: 12px 14px;
+      border-top: 1px solid #e5e7eb;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
     }
-
-    .results-count strong {
-      color: var(--green);
-      font-size: 24px;
-      margin-right: 6px;
+    .d-lbl {
+      font-size: 10px; font-weight: 700;
+      color: #4a7a30;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
     }
+    .d-val { font-family: 'DM Mono', monospace; font-size: 13px; color: #1f2937; }
 
-    /* GRID */
-    .clients-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 14px
-    }
-
-    /* CLIENT CARD */
-    .client-card {
-      background: rgba(255, 255, 255, 0.97);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-      transition: transform .2s, box-shadow .2s, border-color .2s;
-      animation: slideIn .35s ease both;
-    }
-
-    .client-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(104, 217, 40, 0.4);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(104, 217, 40, 0.08);
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(14px)
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0)
-      }
-    }
-
-    .client-card-header {
-      padding: 20px 26px;
+    /* ── ACTIONS ROW ── */
+    .card-actions {
+      padding: 8px 14px;
+      border-top: 1px solid #e5e7eb;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid #e5e7eb;
-      background: linear-gradient(90deg, #68d928 0%, #1a2e0a 100%);
+      gap: 8px;
     }
-
-    .client-card-header h3 {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: .3px;
-      margin-bottom: 2px;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    .actions-left { display: flex; gap: 6px; flex-wrap: wrap; }
+    .act-btn {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      color: #6b7280;
+      padding: 5px 11px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-color .2s, color .2s, background .2s;
+      display: flex; align-items: center; gap: 4px;
+      white-space: nowrap;
     }
+    .act-btn:hover      { background: #e5e7eb; color: #374151; }
+    .act-btn.copy:hover { border-color: rgba(80,170,20,.5); color: #2e6b10; }
 
-    .id-tag {
-      font-size: 13px;
-      font-family: 'DM Mono', monospace;
-      color: rgba(0, 0, 0, 0.5);
-    }
+    /* ── STATES ── */
+    .empty-state { text-align: center; padding: 44px 20px; color: var(--text-3); }
+    .empty-state .icon { font-size: 36px; margin-bottom: 10px; opacity: .5; }
+    .empty-state p   { font-size: 15px; font-weight: 500; margin-bottom: 5px; color: var(--text-2); }
+    .empty-state small { font-size: 12px; }
 
-    .status-badge {
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .5px;
-      flex-shrink: 0;
-      font-family: 'DM Mono', monospace;
-    }
+    .hidden { display: none !important; }
 
-    .status-ativo {
-      background: rgba(80, 170, 20, 0.85);
-      color: #fff;
-      border: 1px solid rgba(104, 217, 40, 0.6);
-    }
-
-    .status-inativo {
-      background: rgba(180, 20, 20, 0.85);
-      color: #fff;
-      border: 1px solid rgba(220, 38, 38, 0.6);
-    }
-
-    .status-boleto-sim {
-      background: rgba(220, 100, 20, 0.85);
-      color: #fff;
-      border: 1px solid rgba(240, 120, 40, 0.6);
-    }
-
-    .status-boleto-nao {
-      background: rgba(80, 170, 20, 0.85);
-      color: #fff;
-      border: 1px solid rgba(104, 217, 40, 0.6);
-    }
-
-    .status-busca {
-      background: rgba(0, 160, 190, 0.85);
-      color: #fff;
-      border: 1px solid rgba(0, 200, 224, 0.6);
-    }
-
-    .client-card-address {
-      padding: 12px 26px 16px;
-      border-top: 1px solid #f0f0f0;
-    }
-
-    .client-card-body {
-      padding: 20px 26px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .info-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #4a7a30;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 5px;
-    }
-
-    .info-value {
-      font-size: 15px;
-      color: #1f2937;
-      font-weight: 500
-    }
-
-    .info-value.mono {
-      font-family: 'DM Mono', monospace;
-      font-size: 14px;
-      color: #1f2937
-    }
-
-    /* EMPTY STATE */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-dim);
-    }
-
-    .empty-state .icon {
-      font-size: 52px;
-      margin-bottom: 16px;
-      opacity: .6
-    }
-
-    .empty-state p {
-      font-size: 17px;
-      font-weight: 500;
-      margin-bottom: 8px
-    }
-
-    .empty-state small {
-      font-size: 13px;
-      opacity: .7
-    }
-
-    .hidden {
-      display: none !important
-    }
-
-    /* LOADER */
     .loading {
       text-align: center;
-      padding: 36px;
-      color: var(--text-dim);
-      font-size: 15px;
+      padding: 28px;
+      color: var(--text-2);
+      font-size: 13px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -419,21 +418,22 @@
       font-family: 'DM Mono', monospace;
       letter-spacing: .5px;
     }
-
     .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(104, 217, 40, 0.2);
+      width: 16px; height: 16px;
+      border: 2px solid rgba(104, 217, 40, 0.12);
       border-top-color: var(--green);
       border-radius: 50%;
       animation: spin .7s linear infinite;
-      box-shadow: 0 0 8px rgba(104, 217, 40, 0.3);
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg)
-      }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .search-row    { flex-direction: column; }
+      .tipo-col      { flex: none; width: 100%; }
+      .valor-col     { flex: none; width: 100%; }
+      .actions-col   { width: 100%; justify-content: flex-end; }
+      .info-inner    { gap: 6px; }
     }
   </style>
 </head>
@@ -443,47 +443,44 @@
   <div class="top-bar">
     <img src="logo.png" alt="DBNET">
     <div class="divider"></div>
-    <span class="page-label">Consulta de Cliente</span>
+    <span class="lbl">Consulta de Cliente</span>
   </div>
 
   <div class="container">
 
-    <div style="display:flex;gap:16px;align-items:stretch;flex-wrap:wrap;">
-
-      <div class="card" style="flex:1;min-width:260px;">
-        <div class="section-title">🔍 Consulta de Cliente</div>
-        <div class="section-sub">Selecione o tipo de dado e informe o valor para localizar o cliente no sistema.</div>
-
-        <div class="form-group">
+    <!-- SEARCH PANEL -->
+    <div class="search-panel">
+      <div class="search-panel-lbl">🔍 Localizar Cliente</div>
+      <div class="search-row">
+        <div class="tipo-col form-group">
           <label>Tipo de busca</label>
           <select id="tipoBusca" onchange="alterarCampos()">
-            <option value="idLead" selected>ID Lead</option>
-            <option value="idProspect">ID Prospect</option>
+            <option value="idLead">ID Lead</option>
+            <option value="idProspect" selected>ID Prospect</option>
             <option value="idCliente">ID Cliente</option>
           </select>
         </div>
-
-        <div id="camposBusca"></div>
-
-        <div class="buttons">
+        <div class="valor-col" id="camposBusca"></div>
+        <div class="actions-col">
           <button class="btn-primary" onclick="buscarCliente()">
-            <span>⚡</span> Buscar Cliente
+            <span>⚡</span> Buscar
           </button>
-          <button class="btn-secondary" onclick="novaBusca()">↻ Nova Busca</button>
+          <button class="btn-secondary" onclick="novaBusca()" title="Nova busca">↻</button>
         </div>
       </div>
-
-      <div id="painelInfo" class="card hidden" style="flex:1;min-width:260px;">
-        <div class="section-title">📋 Dados da Pesquisa</div>
-        <div id="infoConteudo"></div>
-      </div>
-
     </div>
 
+    <!-- INFO STRIP -->
+    <div id="painelInfo" class="info-strip hidden">
+      <div id="infoConteudo"></div>
+    </div>
+
+    <!-- LOADING -->
     <div id="loadingState" class="loading hidden">
       <div class="spinner"></div> Buscando clientes...
     </div>
 
+    <!-- RESULTS -->
     <div id="areaResultados" class="hidden">
       <div class="results-header">
         <div class="results-count">
@@ -496,18 +493,18 @@
   </div>
 
   <script>
-    const cidadeMap = {
-      "3572": "Lorena",
-      "3414": "Cruzeiro",
-      "3697": "Piquete",
-      "3566": "Lavrinhas",
-      "3379": "Canas",
-      "3474": "Guaratinguetá",
-      "3693": "Pindamonhangaba",
-      "3736": "Queluz",
-      "3763": "Roseira",
+    const CIDADES = {
+      "3293": "Aparecida",
       "3363": "Cachoeira Paulista",
-      "3293": "Aparecida"
+      "3379": "Canas",
+      "3414": "Cruzeiro",
+      "3474": "Guaratinguetá",
+      "3566": "Lavrinhas",
+      "3572": "Lorena",
+      "3693": "Pindamonhangaba",
+      "3697": "Piquete",
+      "3736": "Queluz",
+      "3763": "Roseira"
     }
 
     const TIPOS_VALIDOS = ["idLead", "idProspect", "idCliente"]
@@ -520,14 +517,14 @@
       container.innerHTML = ""
 
       const placeholders = {
-        idLead: "Informe o ID do lead",
+        idLead:     "Informe o ID do lead",
         idProspect: "Informe o ID do prospect",
-        idCliente: "Informe o ID do cliente"
+        idCliente:  "Informe o ID do cliente"
       }
       const labels = {
-        idLead: "ID Lead",
+        idLead:     "ID Lead",
         idProspect: "ID Prospect",
-        idCliente: "ID Cliente"
+        idCliente:  "ID Cliente"
       }
 
       const label = document.createElement("label")
@@ -541,9 +538,13 @@
       input.addEventListener("input", function () {
         this.value = this.value.replace(/\D/g, "")
       })
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") buscarCliente()
+      })
 
       const group = document.createElement("div")
       group.className = "form-group"
+      group.style.cssText = "width:100%"
       group.appendChild(label)
       group.appendChild(input)
       container.appendChild(group)
@@ -570,7 +571,7 @@
         return
       }
 
-      let payload = { tipodaBusca: tipo, dados: {} }
+      const payload = { tipodaBusca: tipo, dados: {} }
       payload.dados[tipo] = valor
 
       document.getElementById("areaResultados").classList.remove("hidden")
@@ -579,7 +580,7 @@
       document.getElementById("countClientes").textContent = "..."
 
       try {
-        const response = await fetch("http://10.100.125.80:5678/webhook/client-finder-index", {
+        const response = await fetch("https://n8n.dbnet.com.vc/webhook/client-finder-index", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -590,56 +591,45 @@
 
         let data
         try { data = JSON.parse(rawText) }
-        catch (parseErr) {
+        catch {
           document.getElementById("countClientes").textContent = "Erro"
           document.getElementById("clientesGrid").innerHTML =
-            `<div class="empty-state"><div class="icon">⚠️</div><p>Resposta inválida do servidor</p><small style="font-family:monospace;word-break:break-all">${escapeHtml(rawText.substring(0, 300))}</small></div>`
+            `<div class="empty-state"><div class="icon">⚠️</div><p>Resposta inválida do servidor</p><small>Tente novamente em instantes</small></div>`
           return
         }
 
         const clientes = Array.isArray(data) ? data : (data.clientes || [])
-
-        // Exibe painel de info
         const info = data.info && (Array.isArray(data.info) ? data.info[0] : data.info)
-        if (info) {
-          const cidade = cidadeMap[String(info.Id_cidade)] || info.Id_cidade || ""
 
-          const html = `
-        <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #e5e7eb;">
-          <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">👤 Nome</div>
-          <div style="font-size:18px;font-weight:700;color:#1f2937;">${escapeHtml(info.Nome || info.nomeSecundario || "Nome indisponivel")}</div>
-        </div>
-        <div style="display:flex;gap:16px;">
-          <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
-            ${info.Cpf ? `<div>
-              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">#️⃣ CPF</div>
-              <div style="font-size:14px;font-weight:500;color:#1f2937;font-family:monospace;">${escapeHtml(info.Cpf)}</div>
-            </div>` : ""}
-            ${info.Telefone ? `<div>
-              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">📞 Telefone</div>
-              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(info.Telefone)}</div>
-            </div>` : ""}
-            ${info.Email ? `<div>
-              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">📧 E-mail</div>
-              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(info.Email)}</div>
-            </div>` : ""}
-          </div>
-          <div style="width:1px;background:#e5e7eb;flex-shrink:0;"></div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
-            ${cidade ? `<div>
-              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">🏙️ Cidade</div>
-              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(cidade)}</div>
-            </div>` : ""}
-            ${info.Cep ? `<div>
-              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">📍 CEP</div>
-              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(info.Cep)}</div>
-            </div>` : ""}
-            ${info.Numero_casa ? `<div>
-              <div style="font-size:11px;font-weight:700;color:#4a7a30;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">🏠 Nº Casa</div>
-              <div style="font-size:14px;font-weight:500;color:#1f2937;">${escapeHtml(info.Numero_casa)}</div>
-            </div>` : ""}
-          </div>
-        </div>`
+        if (info) {
+          const cidade = CIDADES[String(info.Id_cidade)] || info.Id_cidade || ""
+          const linha1 = []
+          const linha2 = []
+          if (info.Cpf)          linha1.push({ lbl: "CPF",        val: info.Cpf })
+          if (info.Telefone)     linha1.push({ lbl: "Tel",        val: info.Telefone })
+          if (info.Email)        linha1.push({ lbl: "E-mail",     val: info.Email })
+          if (info.Cep)          linha2.push({ lbl: "CEP",        val: info.Cep })
+          if (cidade)            linha2.push({ lbl: "Cidade",     val: cidade })
+          if (info.bloco)        linha2.push({ lbl: "Bloco",      val: info.bloco })
+          if (info.apartamento)  linha2.push({ lbl: "Apto",       val: info.apartamento })
+          if (info.idCondominio && String(info.idCondominio) !== "0") linha2.push({ lbl: "Condomínio", val: info.idCondominio })
+
+          const renderRow = items => items.map((f, idx) => `
+            ${idx > 0 ? '<div class="i-sep"></div>' : ''}
+            <div class="i-field">
+              <span class="i-lbl">${f.lbl}</span>
+              <span class="i-val">${escapeHtml(String(f.val))}</span>
+            </div>`).join("")
+
+          const html = `<div class="info-inner">
+            <span class="info-tag">Dados da Pesquisa</span>
+            <div class="info-row">
+              <span class="info-name">${escapeHtml(info.Nome || info.nomeSecundario || "Sem nome")}</span>
+              ${linha1.length ? '<div class="i-sep"></div>' + renderRow(linha1) : ''}
+            </div>
+            ${linha2.length ? `<div class="info-row">${renderRow(linha2)}</div>` : ''}
+          </div>`
+
           document.getElementById("infoConteudo").innerHTML = html
           document.getElementById("painelInfo").classList.remove("hidden")
         }
@@ -652,27 +642,32 @@
             `<div class="empty-state"><div class="icon">🔎</div><p>Nenhum cliente encontrado</p><small>Tente buscar com outros dados</small></div>`
         }
 
-      } catch (error) {
+      } catch {
         document.getElementById("loadingState").classList.add("hidden")
         document.getElementById("countClientes").textContent = "Erro"
         document.getElementById("clientesGrid").innerHTML =
-          `<div class="empty-state"><div class="icon">⚠️</div><p>Erro de conexão</p><small style="font-family:monospace">${escapeHtml(String(error))}</small></div>`
-        console.error("FETCH ERROR:", error)
+          `<div class="empty-state"><div class="icon">⚠️</div><p>Erro de conexão</p><small>Verifique sua conexão e tente novamente</small></div>`
       }
     }
 
-    const CIDADES = {
-      "3414": "Cruzeiro",
-      "3572": "Lorena",
-      "3697": "Piquete",
-      "3566": "Lavrinhas",
-      "3379": "Canas",
-      "3474": "Guaratinguetá",
-      "3693": "Pindamonhangaba",
-      "3736": "Queluz",
-      "3763": "Roseira",
-      "3363": "Cachoeira Paulista",
-      "3293": "Aparecida"
+    /* ── helpers ── */
+
+    function parseMatchTypes(busca) {
+      if (!busca) return []
+      return String(busca).split(/[,\s\/]+/).map(s => s.trim().toUpperCase()).filter(Boolean)
+    }
+
+    function matchClass(t) {
+      if (t === "CPF" || t === "CNPJ") return "mb-cpf"
+      if (t === "EMAIL") return "mb-email"
+      if (t.includes("TEL") || t.includes("FONE")) return "mb-tel"
+      if (t.includes("END") || t === "RUA" || t === "CEP") return "mb-end"
+      return "mb-other"
+    }
+
+    function calcScore(types) {
+      const w = { CPF: 45, CNPJ: 40, EMAIL: 25, TELEFONE: 22, TELEFONE2: 18, ENDERECO: 10, NOME: 8, RUA: 7, CEP: 5 }
+      return Math.min(types.reduce((s, t) => s + (w[t] || 5), 0), 99)
     }
 
     function renderClientes(clientes) {
@@ -681,57 +676,126 @@
 
       const grid = document.getElementById("clientesGrid")
       grid.innerHTML = ""
-      clientes.forEach((c, i) => {
-        const ativo = c.statusCliente === "S"
-        const card = document.createElement("div")
-        card.className = "client-card"
-        card.style.animationDelay = (i * 50) + "ms"
 
-        const tel = c.telefoneCliente || null
-        const email = c.emailCliente || null
-        const cidade = CIDADES[String(c.cidadeCliente)] || c.cidadeCliente || null
+      clientes.forEach((c, i) => {
+        const ativo      = c.statusCliente === "S"
+        const matchTypes = parseMatchTypes(c.buscaEncontrada)
+        const score      = calcScore(matchTypes)
+        const scoreClass = score >= 60 ? "sc-high" : score >= 30 ? "sc-med" : "sc-low"
+        const prioClass  = matchTypes.includes("CPF") || matchTypes.includes("CNPJ")
+          ? "prio-high"
+          : matchTypes.some(t => t.includes("TEL") || t === "EMAIL")
+            ? "prio-med"
+            : "prio-low"
+
+        const tel      = c.telefoneCliente || null
+        const email    = c.emailCliente || null
+        const cidade   = CIDADES[String(c.cidadeCliente)] || c.cidadeCliente || null
         const endereco = [cidade, c.bairroCliente, c.ruaCliente, c.numeroCasa].filter(Boolean).join(", ") || null
 
+        /* match row */
+        const matchRowHtml = matchTypes.length > 0 ? `
+          <div class="card-match">
+            <span class="match-via">Match via</span>
+            <div class="match-badges">
+              ${matchTypes.map(t => `<span class="mbadge ${matchClass(t)}">${escapeHtml(t)}</span>`).join("")}
+            </div>
+            ${score > 0 ? `<span class="match-score ${scoreClass}">${score}%</span>` : ""}
+          </div>` : ""
+
+        /* financial badge */
+        const boletoBadge = c.boletosEmAberto === "Sim"
+          ? `<div class="status-sep"></div><span class="fin-lbl">Fin.</span><span class="badge b-boleto">⚠ Boleto em aberto</span>`
+          : c.boletosEmAberto === "Não"
+            ? `<div class="status-sep"></div><span class="fin-lbl">Fin.</span><span class="badge b-ok">✓ Sem boletos</span>`
+            : ""
+
+        /* contact row */
+        const contactRowHtml = (tel || email) ? `
+          <div class="card-contact">
+            ${tel   ? `<div class="contact-item"><span class="c-icon">📞</span><span class="c-value">${escapeHtml(tel)}</span></div>`   : ""}
+            ${email ? `<div class="contact-item"><span class="c-icon">✉</span><span class="c-value">${escapeHtml(email)}</span></div>` : ""}
+          </div>` : ""
+
+        /* expandable details */
+        const hasDetails = c.cpfCliente || endereco || c.cepCliente || c.bloco || c.apartamento || c.idCondominio
+        const detailsHtml = hasDetails ? `
+          <div class="card-details" id="det-${i}">
+            <div class="card-details-grid">
+              ${c.cpfCliente    ? `<div><div class="d-lbl">CPF / CNPJ</div><div class="d-val">${escapeHtml(String(c.cpfCliente))}</div></div>`        : ""}
+              ${endereco        ? `<div><div class="d-lbl">Endereço</div><div class="d-val">${escapeHtml(endereco)}</div></div>`                       : ""}
+              ${c.cepCliente    ? `<div><div class="d-lbl">CEP</div><div class="d-val">${escapeHtml(c.cepCliente)}</div></div>`                        : ""}
+              ${c.bloco         ? `<div><div class="d-lbl">Bloco</div><div class="d-val">${escapeHtml(String(c.bloco))}</div></div>`                   : ""}
+              ${c.apartamento   ? `<div><div class="d-lbl">Apartamento</div><div class="d-val">${escapeHtml(String(c.apartamento))}</div></div>`       : ""}
+              ${c.idCondominio && String(c.idCondominio) !== "0" ? `<div><div class="d-lbl">Condomínio</div><div class="d-val">${escapeHtml(String(c.idCondominio))}</div></div>` : ""}
+            </div>
+          </div>` : ""
+
+        /* action buttons */
+        const actionBtns = []
+        actionBtns.push(`<button class="act-btn copy" id="copy-${i}" onclick="copiar(${i})">📋 Copiar dados</button>`)
+
+        const expandBtn = ""
+
+        /* build card */
+        const card = document.createElement("div")
+        card.className = `client-card ${prioClass}`
+        card.style.animationDelay = (i * 50) + "ms"
+        card.dataset.idx      = i
+        card.dataset.nome     = c.nomeCompleto  || ""
+        card.dataset.id       = c.idCliente     || ""
+        card.dataset.cpf      = c.cpfCliente    || ""
+        card.dataset.tel      = tel             || ""
+        card.dataset.email    = email           || ""
+        card.dataset.endereco = endereco        || ""
+        card.dataset.cep      = c.cepCliente    || ""
+        card.dataset.status   = ativo ? "ATIVO" : "INATIVO"
+        card.dataset.boleto   = c.boletosEmAberto || ""
+
         card.innerHTML = `
-      <div class="client-card-header">
-        <div class="name-block">
-          <h3>${escapeHtml(c.nomeCompleto)}</h3>
-          <div class="id-tag">ID #${escapeHtml(String(c.idCliente))}</div>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <div class="status-badge ${ativo ? 'status-ativo' : 'status-inativo'}">
-            ${ativo ? '● ATIVO' : '● INATIVO'}
+          ${matchRowHtml}
+          <div class="card-main">
+            <div class="client-name">${escapeHtml(c.nomeCompleto)}</div>
+            <div class="client-id">ID #${escapeHtml(String(c.idCliente))}</div>
           </div>
-          ${c.boletosEmAberto === 'Sim' ?
-            `<div class="status-badge status-boleto-sim">⚠ BOLETO EM ABERTO</div>` :
-            (c.boletosEmAberto === 'Não' ?
-              `<div class="status-badge status-boleto-nao">✓ SEM BOLETOS</div>` :
-              ''
-            )}
-          ${c.buscaEncontrada ? `<div class="status-badge status-busca">🔍 VIA ${escapeHtml(String(c.buscaEncontrada).toUpperCase())}</div>` : ''}
-        </div>
-      </div>
-      <div class="client-card-body">
-        <div class="info-item">
-          <div class="info-label">CPF / CNPJ</div>
-          <div class="info-value mono">${c.cpfCliente ? escapeHtml(String(c.cpfCliente)) : '—'}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">Telefone</div>
-          <div class="info-value">${tel ? escapeHtml(tel) : '—'}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">E-mail</div>
-          <div class="info-value">${email ? escapeHtml(email) : '—'}</div>
-        </div>
-      </div>
-      <div class="client-card-address">
-        <div class="info-label">Endereço</div>
-        <div class="info-value">${endereco ? escapeHtml(endereco) : '—'}</div>
-        ${c.cepCliente ? `<div class="info-value mono" style="margin-top:2px;font-size:13px;color:#6b7280;">CEP: ${escapeHtml(c.cepCliente)}</div>` : ''}
-      </div>
-    `
+          <div class="card-status">
+            <span class="badge ${ativo ? "b-ativo" : "b-inativo"}">${ativo ? "● ATIVO" : "● INATIVO"}</span>
+            ${boletoBadge}
+          </div>
+          ${contactRowHtml}
+          ${detailsHtml}
+          <div class="card-actions">
+            <div class="actions-left">${actionBtns.join("")}</div>
+            ${expandBtn}
+          </div>`
+
         grid.appendChild(card)
+      })
+    }
+
+    function copiar(i) {
+      const card = document.querySelector(`.client-card[data-idx="${i}"]`)
+      if (!card) return
+      const linhas = [
+        `Nome: ${card.dataset.nome}`,
+        `ID: ${card.dataset.id}`,
+        card.dataset.cpf      ? `CPF: ${card.dataset.cpf}`           : null,
+        card.dataset.tel      ? `Telefone: ${card.dataset.tel}`       : null,
+        card.dataset.email    ? `E-mail: ${card.dataset.email}`       : null,
+        card.dataset.endereco ? `Endereço: ${card.dataset.endereco}`  : null,
+        card.dataset.cep      ? `CEP: ${card.dataset.cep}`            : null,
+        `Status: ${card.dataset.status}`,
+        card.dataset.boleto   ? `Boletos: ${card.dataset.boleto}`     : null,
+      ].filter(Boolean)
+
+      navigator.clipboard.writeText(linhas.join("\n")).then(() => {
+        const btn = document.getElementById(`copy-${i}`)
+        if (!btn) return
+        const orig = btn.innerHTML
+        btn.innerHTML = "✓ Copiado"
+        btn.style.color = "var(--green)"
+        btn.style.borderColor = "rgba(104,217,40,.4)"
+        setTimeout(() => { btn.innerHTML = orig; btn.style.color = ""; btn.style.borderColor = "" }, 1800)
       })
     }
 
@@ -755,5 +819,4 @@
     alterarCampos()
   </script>
 </body>
-
 </html>
