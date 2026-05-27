@@ -624,17 +624,21 @@
         const info = data.info && (Array.isArray(data.info) ? data.info[0] : data.info)
 
         if (info) {
-          const cidade = CIDADES[String(info.Id_cidade)] || info.Id_cidade || ""
+          const cidade = CIDADES[String(info.Id_cidade)] || info.cidade || ""
           const linha1 = []
           const linha2 = []
-          if (info.Cpf)          linha1.push({ lbl: "CPF",        val: info.Cpf })
-          if (info.Telefone)     linha1.push({ lbl: "Tel",        val: info.Telefone })
-          if (info.Email)        linha1.push({ lbl: "E-mail",     val: info.Email })
-          if (info.Cep)          linha2.push({ lbl: "CEP",        val: info.Cep })
-          if (cidade)            linha2.push({ lbl: "Cidade",     val: cidade })
-          if (info.bloco)        linha2.push({ lbl: "Bloco",      val: info.bloco })
-          if (info.apartamento)  linha2.push({ lbl: "Apto",       val: info.apartamento })
-          if (info.idCondominio && String(info.idCondominio) !== "0") linha2.push({ lbl: "Condomínio", val: CONDOMINIOS[Number(info.idCondominio)] || info.idCondominio })
+          const linha3 = []
+          if (info.Cpf)         linha1.push({ lbl: "CPF",        val: info.Cpf })
+          if (info.Telefone)    linha1.push({ lbl: "Tel",        val: info.Telefone })
+          if (info.Email)       linha1.push({ lbl: "E-mail",     val: info.Email })
+          if (info.Cep)         linha2.push({ lbl: "CEP",        val: info.Cep })
+          if (cidade)           linha2.push({ lbl: "Cidade",     val: cidade })
+          if (info.rua)         linha2.push({ lbl: "Rua",        val: info.rua })
+          if (info.Numero_casa) linha2.push({ lbl: "Nº",         val: info.Numero_casa })
+          if (info.bairro)      linha2.push({ lbl: "Bairro",     val: info.bairro })
+          if (info.bloco)       linha3.push({ lbl: "Bloco",      val: info.bloco })
+          if (info.apartamento) linha3.push({ lbl: "Apto",       val: info.apartamento })
+          if (info.idCondominio && String(info.idCondominio) !== "0") linha3.push({ lbl: "Condomínio", val: CONDOMINIOS[Number(info.idCondominio)] || info.idCondominio })
 
           const renderRow = items => items.map((f, idx) => `
             ${idx > 0 ? '<div class="i-sep"></div>' : ''}
@@ -650,6 +654,7 @@
               ${linha1.length ? '<div class="i-sep"></div>' + renderRow(linha1) : ''}
             </div>
             ${linha2.length ? `<div class="info-row">${renderRow(linha2)}</div>` : ''}
+            ${linha3.length ? `<div class="info-row">${renderRow(linha3)}</div>` : ''}
           </div>`
 
           document.getElementById("infoConteudo").innerHTML = html
@@ -688,7 +693,7 @@
     }
 
     function calcScore(types) {
-      const w = { CPF: 45, CNPJ: 40, EMAIL: 25, TELEFONE: 22, TELEFONE2: 18, ENDERECO: 10, NOME: 8, RUA: 7, CEP: 5 }
+      const w = { CPF: 45, CNPJ: 40, EMAIL: 25, TELEFONE: 22, TELEFONE2: 18, ENDERECO: 30, NOME: 8, RUA: 7, CEP: 5 }
       return Math.min(types.reduce((s, t) => s + (w[t] || 5), 0), 99)
     }
 
