@@ -350,8 +350,9 @@
       gap: 16px;
       flex-wrap: wrap;
     }
-    .contact-item { display: flex; align-items: center; gap: 6px; }
-    .c-icon  { font-size: 11px; opacity: .4; }
+    .contact-item { display: flex; align-items: center; gap: 5px; }
+    .c-icon  { font-size: 11px; opacity: .75; }
+    .c-tag   { font-size: 9px; font-weight: 700; color: #9ca3af; letter-spacing: .8px; text-transform: uppercase; }
     .c-value { font-family: 'DM Mono', monospace; font-size: 13px; color: #1f2937; }
 
     /* ── DETAILS ── */
@@ -628,9 +629,13 @@
           const linha1 = []
           const linha2 = []
           const linha3 = []
-          if (info.Cpf)         linha1.push({ lbl: "CPF",        val: info.Cpf })
-          if (info.Telefone)    linha1.push({ lbl: "Tel",        val: info.Telefone })
-          if (info.Email)       linha1.push({ lbl: "E-mail",     val: info.Email })
+          if (info.Cpf)                    linha1.push({ lbl: "CPF",     val: info.Cpf })
+          if (info.Email)                  linha1.push({ lbl: "E-mail",  val: info.Email })
+          const linhaFones = []
+          if (info.Telefone_celular)       linhaFones.push({ lbl: "Celular",       val: info.Telefone_celular })
+          if (info.Telefone_whatsapp)      linhaFones.push({ lbl: "WhatsApp",      val: info.Telefone_whatsapp })
+          if (info.Telefone_comercial)     linhaFones.push({ lbl: "Comercial",     val: info.Telefone_comercial })
+          if (info.Telefone_residencial)   linhaFones.push({ lbl: "Residencial",   val: info.Telefone_residencial })
           if (info.Cep)         linha2.push({ lbl: "CEP",        val: info.Cep })
           if (cidade)           linha2.push({ lbl: "Cidade",     val: cidade })
           if (info.rua)         linha2.push({ lbl: "Rua",        val: info.rua })
@@ -653,6 +658,7 @@
               <span class="info-name">${escapeHtml(info.Nome || info.nomeSecundario || "Sem nome")}</span>
               ${linha1.length ? '<div class="i-sep"></div>' + renderRow(linha1) : ''}
             </div>
+            ${linhaFones.length ? `<div class="info-row">${renderRow(linhaFones)}</div>` : ''}
             ${linha2.length ? `<div class="info-row">${renderRow(linha2)}</div>` : ''}
             ${linha3.length ? `<div class="info-row">${renderRow(linha3)}</div>` : ''}
           </div>`
@@ -681,7 +687,9 @@
 
     function parseMatchTypes(busca) {
       if (!busca) return []
-      return String(busca).split(/[,\s\/]+/).map(s => s.trim().toUpperCase()).filter(Boolean)
+      return String(busca).split(/[,\s\/]+/).map(s =>
+        s.trim().toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+      ).filter(Boolean)
     }
 
     function matchClass(t) {
@@ -715,8 +723,11 @@
             ? "prio-med"
             : "prio-low"
 
-        const tel      = c.telefoneCliente || null
-        const email    = c.emailCliente || null
+        const telCelular     = c.telefone_celular     || null
+        const telWhatsapp    = c.telefone_whatsapp    || null
+        const telComercial   = c.telefone_comercial   || null
+        const telResidencial = c.telefone_residencial || null
+        const email          = c.emailCliente         || null
         const cidade   = CIDADES[String(c.cidadeCliente)] || c.cidadeCliente || null
         const endereco = [cidade, c.bairroCliente, c.ruaCliente, c.numeroCasa].filter(Boolean).join(", ") || null
 
@@ -738,10 +749,14 @@
             : ""
 
         /* contact row */
-        const contactRowHtml = (tel || email) ? `
+        const anyFone = telCelular || telWhatsapp || telComercial || telResidencial
+        const contactRowHtml = (anyFone || email) ? `
           <div class="card-contact">
-            ${tel   ? `<div class="contact-item"><span class="c-icon">📞</span><span class="c-value">${escapeHtml(tel)}</span></div>`   : ""}
-            ${email ? `<div class="contact-item"><span class="c-icon">✉</span><span class="c-value">${escapeHtml(email)}</span></div>` : ""}
+            ${telCelular     ? `<div class="contact-item"><span class="c-icon">📱</span><span class="c-tag">Cel</span><span class="c-value">${escapeHtml(telCelular)}</span></div>`     : ""}
+            ${telWhatsapp    ? `<div class="contact-item"><span class="c-icon">💬</span><span class="c-tag">Wpp</span><span class="c-value">${escapeHtml(telWhatsapp)}</span></div>`    : ""}
+            ${telComercial   ? `<div class="contact-item"><span class="c-icon">🏢</span><span class="c-tag">Com</span><span class="c-value">${escapeHtml(telComercial)}</span></div>`   : ""}
+            ${telResidencial ? `<div class="contact-item"><span class="c-icon">📞</span><span class="c-tag">Res</span><span class="c-value">${escapeHtml(telResidencial)}</span></div>` : ""}
+            ${email          ? `<div class="contact-item"><span class="c-icon">📧</span><span class="c-value">${escapeHtml(email)}</span></div>`                                       : ""}
           </div>` : ""
 
         /* expandable details */
@@ -772,8 +787,11 @@
         card.dataset.nome     = c.nomeCompleto  || ""
         card.dataset.id       = c.idCliente     || ""
         card.dataset.cpf      = c.cpfCliente    || ""
-        card.dataset.tel      = tel             || ""
-        card.dataset.email    = email           || ""
+        card.dataset.telCelular     = telCelular     || ""
+        card.dataset.telWhatsapp    = telWhatsapp    || ""
+        card.dataset.telComercial   = telComercial   || ""
+        card.dataset.telResidencial = telResidencial || ""
+        card.dataset.email          = email          || ""
         card.dataset.endereco = endereco        || ""
         card.dataset.cep      = c.cepCliente    || ""
         card.dataset.status   = ativo ? "ATIVO" : "INATIVO"
@@ -806,9 +824,12 @@
       const linhas = [
         `Nome: ${card.dataset.nome}`,
         `ID: ${card.dataset.id}`,
-        card.dataset.cpf      ? `CPF: ${card.dataset.cpf}`           : null,
-        card.dataset.tel      ? `Telefone: ${card.dataset.tel}`       : null,
-        card.dataset.email    ? `E-mail: ${card.dataset.email}`       : null,
+        card.dataset.cpf             ? `CPF: ${card.dataset.cpf}`                       : null,
+        card.dataset.telCelular     ? `Celular: ${card.dataset.telCelular}`             : null,
+        card.dataset.telWhatsapp    ? `WhatsApp: ${card.dataset.telWhatsapp}`           : null,
+        card.dataset.telComercial   ? `Tel. Comercial: ${card.dataset.telComercial}`   : null,
+        card.dataset.telResidencial ? `Tel. Residencial: ${card.dataset.telResidencial}` : null,
+        card.dataset.email          ? `E-mail: ${card.dataset.email}`                  : null,
         card.dataset.endereco ? `Endereço: ${card.dataset.endereco}`  : null,
         card.dataset.cep      ? `CEP: ${card.dataset.cep}`            : null,
         `Status: ${card.dataset.status}`,
