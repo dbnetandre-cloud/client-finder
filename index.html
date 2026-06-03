@@ -457,7 +457,6 @@
         <div class="tipo-col form-group">
           <label>Tipo de busca</label>
           <select id="tipoBusca" onchange="alterarCampos()">
-            <option value="idLead">ID Lead</option>
             <option value="idProspect" selected>ID Prospect</option>
             <option value="idCliente">ID Cliente</option>
           </select>
@@ -633,8 +632,15 @@
           const linha1 = []
           const linha2 = []
           const linha3 = []
-          if (info.Cpf)                    linha1.push({ lbl: "CPF",     val: info.Cpf })
-          if (info.Email)                  linha1.push({ lbl: "E-mail",  val: info.Email })
+          const SEXO_MAP = { F: "Feminino", M: "Masculino", NB: "Não binário", O: "Outro", PNI: "Prefiro não dizer" }
+          if (info.data_nascimento) {
+            const [ano, mes, dia] = String(info.data_nascimento).split("-")
+            const dataNasc = dia && mes && ano ? `${dia}/${mes}/${ano}` : info.data_nascimento
+            linha1.push({ lbl: "Nascimento", val: dataNasc })
+          }
+          if (info.sexo)                   linha1.push({ lbl: "Sexo",       val: SEXO_MAP[String(info.sexo).toUpperCase()] || info.sexo })
+          if (info.Cpf)                    linha1.push({ lbl: "CPF",        val: info.Cpf })
+          if (info.Email)                  linha1.push({ lbl: "E-mail",     val: info.Email })
           const linhaFones = []
           if (info.Telefone_celular)       linhaFones.push({ lbl: "Celular",       val: info.Telefone_celular })
           if (info.Telefone_whatsapp)      linhaFones.push({ lbl: "WhatsApp",      val: info.Telefone_whatsapp })
@@ -715,6 +721,10 @@
 
       const grid = document.getElementById("clientesGrid")
       grid.innerHTML = ""
+
+      clientes = [...clientes].sort((a, b) =>
+        calcScore(parseMatchTypes(b.buscaEncontrada)) - calcScore(parseMatchTypes(a.buscaEncontrada))
+      )
 
       clientes.forEach((c, i) => {
         const ativo      = c.statusCliente === "S"
