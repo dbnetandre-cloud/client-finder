@@ -606,7 +606,7 @@
       document.getElementById("countClientes").textContent = "..."
 
       try {
-        const response = await fetch("https://n8n.dbnet.com.vc/webhook/testes-buscas", {
+        const response = await fetch("https://n8n.dbnet.com.vc/webhook/client-finder-index", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
