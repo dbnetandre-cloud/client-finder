@@ -606,7 +606,7 @@
       document.getElementById("countClientes").textContent = "..."
 
       try {
-        const response = await fetch("https://n8n.dbnet.com.vc/webhook/client-finder-index", {
+        const response = await fetch("https://n8n.dbnet.com.vc/webhook/testes-buscas", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -649,8 +649,9 @@
           if (info.Cep)         linha2.push({ lbl: "CEP",        val: info.Cep })
           if (cidade)           linha2.push({ lbl: "Cidade",     val: cidade })
           if (info.rua)         linha2.push({ lbl: "Rua",        val: info.rua })
-          if (info.Numero_casa) linha2.push({ lbl: "Nº",         val: info.Numero_casa })
-          if (info.bairro)      linha2.push({ lbl: "Bairro",     val: info.bairro })
+          if (info.Numero_casa)  linha2.push({ lbl: "Nº",          val: info.Numero_casa })
+          if (info.complemento)  linha2.push({ lbl: "Complemento", val: info.complemento })
+          if (info.bairro)       linha2.push({ lbl: "Bairro",      val: info.bairro })
           if (info.bloco)       linha3.push({ lbl: "Bloco",      val: info.bloco })
           if (info.apartamento) linha3.push({ lbl: "Apto",       val: info.apartamento })
           if (info.idCondominio && String(info.idCondominio) !== "0") linha3.push({ lbl: "Condomínio", val: CONDOMINIOS[Number(info.idCondominio)] || info.idCondominio })
@@ -781,6 +782,7 @@
               ${c.cpfCliente    ? `<div><div class="d-lbl">CPF / CNPJ</div><div class="d-val">${escapeHtml(String(c.cpfCliente))}</div></div>`        : ""}
               ${endereco        ? `<div class="d-wide"><div class="d-lbl">Endereço</div><div class="d-val">${escapeHtml(endereco)}</div></div>`          : ""}
               ${c.cepCliente    ? `<div><div class="d-lbl">CEP</div><div class="d-val">${escapeHtml(c.cepCliente)}</div></div>`                        : ""}
+              ${c.complemento   ? `<div><div class="d-lbl">Complemento</div><div class="d-val">${escapeHtml(String(c.complemento))}</div></div>`   : ""}
               ${c.bloco         ? `<div><div class="d-lbl">Bloco</div><div class="d-val">${escapeHtml(String(c.bloco))}</div></div>`                   : ""}
               ${c.apartamento   ? `<div><div class="d-lbl">Apartamento</div><div class="d-val">${escapeHtml(String(c.apartamento))}</div></div>`       : ""}
               ${c.idCondominio && String(c.idCondominio) !== "0" ? `<div><div class="d-lbl">Condomínio</div><div class="d-val">${escapeHtml(CONDOMINIOS[Number(c.idCondominio)] || String(c.idCondominio))}</div></div>` : ""}
