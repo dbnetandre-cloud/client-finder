@@ -7,7 +7,7 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src https://n8n.dbnet.com.vc; frame-ancestors 'none'; object-src 'none';">
-  <title>Consulta de Cliente - DBNET</title>
+  <title> Busca Clientes - DBNET </title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -229,6 +229,7 @@
       display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
     }
     @media (max-width: 600px) { .dados-grid { grid-template-columns: 1fr; } }
+    .dados-grid-bottom { margin-top: 20px; }
     .dados-card {
       background: var(--s2);
       border: 1px solid var(--border);
@@ -255,6 +256,7 @@
     .dados-val.alerta   { color: #ff9f43; }
     .dados-val.erro     { color: #ff6b6b; }
     .dados-val.cyan     { color: var(--cyan); }
+    .dados-val.vazio    { color: #ff6b6b; font-weight: 400; font-size: 15px; }
 
     /* ── INFO STRIP ── */
     .info-strip {
@@ -859,11 +861,11 @@
           ? rawContr.data_expiracao.split("-").reverse().join("/")
           : ""
 
-        const row = (lbl, val, cls = "") => val ? `
+        const row = (lbl, val, cls = "") => `
           <div class="dados-row">
             <span class="dados-lbl">${lbl}</span>
-            <span class="dados-val ${cls}">${escapeHtml(val)}</span>
-          </div>` : ""
+            <span class="dados-val ${val ? cls : 'vazio'}">${val ? escapeHtml(val) : "—"}</span>
+          </div>`
 
         const statusCls = statusStr === "Ativo" ? "destaque" : (statusStr === "Inativo" || statusStr === "Cancelado" ? "erro" : "")
 
@@ -895,7 +897,37 @@
             </div>
           </div>`
 
-        body.innerHTML = `<div class="dados-grid">${crmHtml}${contratoHtml}</div>`
+        const SEXO_MAP = { M: "Masculino", F: "Feminino", NB: "Não binário", O: "Outro", PNI: "Prefiro não dizer" }
+        const sexoRaw  = findKey("genero_cliente") || findKey("sexo") || findKey("genero")
+        const sexoStr  = SEXO_MAP[String(sexoRaw).toUpperCase()] || sexoRaw
+
+        const nascRaw  = findKey("data_nascimento")
+        const nascStr  = nascRaw ? nascRaw.split("-").reverse().join("/") : ""
+
+        const pessoalHtml = `
+          <div class="dados-card">
+            <div class="dados-card-header"><span class="icon">🪪</span><span class="titulo">DADOS PESSOAIS</span></div>
+            <div class="dados-card-body">
+              ${row("Gênero",           sexoStr)}
+              ${row("Nascimento",       nascStr)}
+            </div>
+          </div>`
+
+        const contatosHtml = `
+          <div class="dados-card">
+            <div class="dados-card-header"><span class="icon">📞</span><span class="titulo">CONTATOS</span></div>
+            <div class="dados-card-body">
+              ${row("Celular",      findKey("telefone_celular")    || findKey("celular"))}
+              ${row("WhatsApp",     findKey("telefone_whatsapp")   || findKey("whatsapp"))}
+              ${row("Comercial",    findKey("telefone_comercial")  || findKey("comercial"))}
+              ${row("Residencial",  findKey("telefone_residencial")|| findKey("residencial"))}
+              ${row("E-mail",       findKey("email_principal")      || findKey("email") || findKey("Email"))}
+            </div>
+          </div>`
+
+        body.innerHTML = `
+          <div class="dados-grid">${crmHtml}${contratoHtml}</div>
+          <div class="dados-grid dados-grid-bottom">${pessoalHtml}${contatosHtml}</div>`
 
       } catch {
         body.innerHTML = `<div class="modal-error">⚠️ Erro de conexão. Verifique e tente novamente.</div>`
