@@ -171,6 +171,91 @@
       background: var(--s2);
     }
 
+    .btn-check {
+      height: 36px;
+      background: transparent;
+      border: 1px solid rgba(0, 200, 224, 0.35);
+      padding: 0 16px;
+      border-radius: 7px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700; font-size: 15px;
+      letter-spacing: .5px;
+      cursor: pointer;
+      color: var(--cyan);
+      transition: border-color .2s, background .2s, box-shadow .2s, transform .1s;
+      display: flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-check:hover  { background: rgba(0, 200, 224, 0.08); border-color: var(--cyan); box-shadow: 0 0 14px rgba(0, 200, 224, 0.2); }
+    .btn-check:active { transform: scale(.97); }
+
+    /* ── MODAL CHECAR DADOS ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(4, 10, 18, 0.82);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: var(--s1);
+      border: 1px solid rgba(0, 200, 224, 0.2);
+      border-radius: 14px;
+      width: 100%; max-width: 1080px;
+      box-shadow: 0 0 40px rgba(0, 200, 224, 0.1);
+      overflow: hidden;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; color: var(--cyan); letter-spacing: .5px; }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-2); font-size: 22px; line-height: 1;
+      padding: 2px 6px; border-radius: 5px;
+      transition: color .2s, background .2s;
+    }
+    .modal-close:hover { color: var(--text); background: var(--s2); }
+    .modal-body { padding: 24px; }
+    .modal-loading { text-align: center; padding: 40px 20px; color: var(--text-2); font-family: 'DM Sans', sans-serif; font-size: 15px; }
+    .modal-loading .spinner { width: 28px; height: 28px; border: 3px solid rgba(0,200,224,.15); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
+    .modal-error { text-align: center; padding: 30px 20px; color: #ff6b6b; font-family: 'DM Sans', sans-serif; font-size: 15px; }
+
+    .dados-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    @media (max-width: 600px) { .dados-grid { grid-template-columns: 1fr; } }
+    .dados-card {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .dados-card-header {
+      display: flex; align-items: center; gap: 9px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dados-card-header .icon { font-size: 18px; }
+    .dados-card-header .titulo { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 1px; color: var(--text-2); }
+    .dados-card-body { padding: 4px 0; }
+    .dados-row {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 9px 16px; gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dados-row:last-child { border-bottom: none; }
+    .dados-lbl { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-2); white-space: nowrap; flex-shrink: 0; }
+    .dados-val { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 16px; color: var(--text); text-align: right; }
+    .dados-val.destaque { color: var(--green); }
+    .dados-val.alerta   { color: #ff9f43; }
+    .dados-val.erro     { color: #ff6b6b; }
+    .dados-val.cyan     { color: var(--cyan); }
+
     /* ── INFO STRIP ── */
     .info-strip {
       background: var(--s1);
@@ -466,6 +551,9 @@
           <button class="btn-primary" onclick="buscarCliente()">
             <span>⚡</span> Buscar
           </button>
+          <button class="btn-check" onclick="checarDados()" title="Checar dados no CRM e Contrato">
+            <span>📋</span> Checar Dados
+          </button>
           <button class="btn-secondary" onclick="novaBusca()" title="Nova busca">↻</button>
         </div>
       </div>
@@ -491,6 +579,19 @@
       <div id="clientesGrid" class="clients-grid"></div>
     </div>
 
+  </div>
+
+  <!-- MODAL CHECAR DADOS -->
+  <div id="modalChecar" class="modal-overlay hidden" onclick="fecharModalChecar(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">📋 CHECAR DADOS</span>
+        <button class="modal-close" onclick="document.getElementById('modalChecar').classList.add('hidden')">✕</button>
+      </div>
+      <div class="modal-body" id="modalChecarBody">
+        <div class="modal-loading"><div class="spinner"></div>Consultando dados...</div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -691,6 +792,119 @@
         document.getElementById("countClientes").textContent = "Erro"
         document.getElementById("clientesGrid").innerHTML =
           `<div class="empty-state"><div class="icon">⚠️</div><p>Erro de conexão</p><small>Verifique sua conexão e tente novamente</small></div>`
+      }
+    }
+
+    async function checarDados() {
+      const valorEl = document.getElementById("valorBusca")
+      const valor = valorEl ? valorEl.value : ""
+
+      if (!valor || !/^\d{1,20}$/.test(valor)) {
+        alert("Informe um ID numérico válido antes de checar os dados.")
+        return
+      }
+
+      const modal = document.getElementById("modalChecar")
+      const body  = document.getElementById("modalChecarBody")
+      body.innerHTML = `<div class="modal-loading"><div class="spinner"></div>Consultando dados...</div>`
+      modal.classList.remove("hidden")
+
+      try {
+        const response = await fetch("https://n8n.dbnet.com.vc/webhook/checar-info", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: valor })
+        })
+
+        const rawText = await response.text()
+        let data
+        try { data = JSON.parse(rawText) } catch { data = null }
+
+        if (!data) {
+          body.innerHTML = `<div class="modal-error">⚠️ Resposta inválida do servidor</div>`
+          return
+        }
+
+        // Mapas de decodificação
+        const STATUS_MAP     = { A: "Ativo", I: "Inativo", C: "Cancelado", S: "Suspenso" }
+        const COBRANCA_MAP   = { P: "Configuração padrão", B: "Boleto", C: "Cartão", D: "Débito automático" }
+        const MOTIVO_MAP     = { I: "Instalação", M: "Migração", T: "Troca de titular", R: "Reativação" }
+        const SEGMENTO_MAP   = { 1: "Residencial", 2: "Empresarial", 3: "Loja", 4: "Condomínio", 5: "Governo" }
+
+        // Extrai os objetos da estrutura retornada
+        // Resposta: [ {dados: [...]}, {dados: [...]} ] — dois grupos, cada um com array de objetos
+        const grupos  = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : [data])
+        const arr     = grupos.flatMap(g => Array.isArray(g.dados) ? g.dados : (Array.isArray(g) ? g : [g]))
+        const findKey = (key) => { const obj = arr.find(o => key in o); return obj ? String(obj[key]).trim() : "" }
+
+        const rawContr = arr.find(o => "id_contrato" in o) || {}
+
+        const segmentoId   = findKey("id_segmento")
+        const canalVendas  = findKey("canal_vendas")
+        const responsavel  = findKey("nome_funcionario")
+        const indicadoPorNome = findKey("indicado_por")
+        const indicadoPorId   = findKey("id_indicado_por") || findKey("indicado_por_id")
+        const indicadoPor     = indicadoPorId && indicadoPorNome
+          ? `${indicadoPorId} - ${indicadoPorNome}`
+          : (indicadoPorNome || indicadoPorId)
+        const vendPadrao   = findKey("nome_vendedor_padrao")
+
+        const statusStr    = STATUS_MAP[rawContr.status_contrato]   || rawContr.status_contrato   || ""
+        const cobrancaRaw  = findKey("tipo_cobrança")
+        const cobrancaStr  = COBRANCA_MAP[cobrancaRaw] || cobrancaRaw
+        const motivoStr    = MOTIVO_MAP[rawContr.motivo_inclusao]    || rawContr.motivo_inclusao    || ""
+        const segmentoStr  = SEGMENTO_MAP[segmentoId]               || segmentoId                  || ""
+
+        const dataExp = rawContr.data_expiracao
+          ? rawContr.data_expiracao.split("-").reverse().join("/")
+          : ""
+
+        const row = (lbl, val, cls = "") => val ? `
+          <div class="dados-row">
+            <span class="dados-lbl">${lbl}</span>
+            <span class="dados-val ${cls}">${escapeHtml(val)}</span>
+          </div>` : ""
+
+        const statusCls = statusStr === "Ativo" ? "destaque" : (statusStr === "Inativo" || statusStr === "Cancelado" ? "erro" : "")
+
+        const crmHtml = `
+          <div class="dados-card">
+            <div class="dados-card-header"><span class="icon">👥</span><span class="titulo">CRM</span></div>
+            <div class="dados-card-body">
+              ${row("ID Buscado",      valor, "cyan")}
+              ${row("Segmento",        segmentoStr)}
+              ${row("Canal de Venda",  canalVendas, canalVendas.includes("TROCA") ? "alerta" : "")}
+              ${row("Responsável",     responsavel)}
+              ${row("Indicado por",    indicadoPor)}
+              ${row("Vendedor Padrão", vendPadrao)}
+            </div>
+          </div>`
+
+        const contratoHtml = `
+          <div class="dados-card">
+            <div class="dados-card-header"><span class="icon">📄</span><span class="titulo">CONTRATO</span></div>
+            <div class="dados-card-body">
+              ${row("ID Contrato",           findKey("id_contrato"), "cyan")}
+              ${row("Status",                statusStr,              statusCls)}
+              ${row("Plano de Venda",         rawContr.plano_venda || "", "cyan")}
+              ${row("Tipo de Cobrança",       cobrancaStr,            cobrancaStr.includes("padrão") ? "alerta" : "")}
+              ${row("Motivo Inclusão",        motivoStr)}
+              ${row("Vendedor (Faturamento)", vendPadrao)}
+              ${row("Vendedor Ativação",      findKey("vendedor_ativacao"))}
+              ${row("Data de Expiração",      dataExp)}
+            </div>
+          </div>`
+
+        body.innerHTML = `<div class="dados-grid">${crmHtml}${contratoHtml}</div>`
+
+      } catch {
+        body.innerHTML = `<div class="modal-error">⚠️ Erro de conexão. Verifique e tente novamente.</div>`
+      }
+    }
+
+    function fecharModalChecar(event) {
+      if (event.target === document.getElementById("modalChecar")) {
+        document.getElementById("modalChecar").classList.add("hidden")
       }
     }
 
