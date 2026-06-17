@@ -831,7 +831,7 @@
         const STATUS_MAP     = { A: "Ativo", I: "Inativo", C: "Cancelado", S: "Suspenso" }
         const COBRANCA_MAP   = { P: "Configuração padrão", B: "Boleto", C: "Cartão", D: "Débito automático" }
         const MOTIVO_MAP     = { I: "Instalação", M: "Migração", T: "Troca de titular", R: "Reativação" }
-        const SEGMENTO_MAP   = { 1: "Residencial", 2: "Empresarial", 3: "Loja", 4: "Condomínio", 5: "Governo" }
+        const SEGMENTO_MAP   = { 1: "Loja", 2: "PAP", 3: "Vendas Interna", 4: "E-Commerce", 5: "Vendas PJ" }
 
         // Normaliza a resposta para sempre chegar em [ {dados:[...]}, {dados:[...]} ]
         let grupos = Array.isArray(data) ? data : [data]
