@@ -7,7 +7,7 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src https://n8n.dbnet.com.vc; frame-ancestors 'none'; object-src 'none';">
-  <title> Busca Clientes - DBNET </title>
+  <title>Consulta de Cliente - DBNET</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -833,11 +833,17 @@
         const MOTIVO_MAP     = { I: "Instalação", M: "Migração", T: "Troca de titular", R: "Reativação" }
         const SEGMENTO_MAP   = { 1: "Residencial", 2: "Empresarial", 3: "Loja", 4: "Condomínio", 5: "Governo" }
 
-        // Extrai os objetos da estrutura retornada
-        // Resposta: [ {dados: [...]}, {dados: [...]} ] — dois grupos, cada um com array de objetos
-        const grupos  = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : [data])
-        const arr     = grupos.flatMap(g => Array.isArray(g.dados) ? g.dados : (Array.isArray(g) ? g : [g]))
-        const findKey = (key) => { const obj = arr.find(o => key in o); return obj ? String(obj[key]).trim() : "" }
+        // Normaliza a resposta para sempre chegar em [ {dados:[...]}, {dados:[...]} ]
+        let grupos = Array.isArray(data) ? data : [data]
+        // Desempacota wrapper { data: [...] } se existir
+        if (grupos.length === 1 && Array.isArray(grupos[0].data)) grupos = grupos[0].data
+        // Desempacota wrapper { dados: [ {dados:[...]}, ... ] } profundo
+        const grpContr = Array.isArray((grupos[0] || {}).dados) ? grupos[0].dados : []
+        const grpCrm   = Array.isArray((grupos[1] || {}).dados) ? grupos[1].dados : []
+        const arr      = [...grpContr, ...grpCrm]
+
+        const findIn   = (list, key) => { const obj = list.find(o => key in o); return obj ? String(obj[key]).trim() : "" }
+        const findKey  = (key) => findIn(arr, key)
 
         const rawContr = arr.find(o => "id_contrato" in o) || {}
 
@@ -849,7 +855,11 @@
         const indicadoPor     = indicadoPorId && indicadoPorNome
           ? `${indicadoPorId} - ${indicadoPorNome}`
           : (indicadoPorNome || indicadoPorId)
-        const vendPadrao   = findKey("nome_vendedor_padrao")
+        const vendPadraoContrato = findKey("nome_vendedor_faturamento")
+        const vendPadrao         = findKey("nome_vendedor_padrao")
+        console.log("DEBUG arr keys:", arr.map(o => Object.keys(o)))
+        console.log("DEBUG vendPadraoContrato:", vendPadraoContrato)
+        console.log("DEBUG vendPadrao:", vendPadrao)
 
         const statusStr    = STATUS_MAP[rawContr.status_contrato]   || rawContr.status_contrato   || ""
         const cobrancaRaw  = findKey("tipo_cobrança")
@@ -891,7 +901,7 @@
               ${row("Plano de Venda",         rawContr.plano_venda || "", "cyan")}
               ${row("Tipo de Cobrança",       cobrancaStr,            cobrancaStr.includes("padrão") ? "alerta" : "")}
               ${row("Motivo Inclusão",        motivoStr)}
-              ${row("Vendedor (Faturamento)", vendPadrao)}
+              ${row("Vendedor (Faturamento)", vendPadraoContrato)}
               ${row("Vendedor Ativação",      findKey("vendedor_ativacao"))}
               ${row("Data de Expiração",      dataExp)}
             </div>
