@@ -194,9 +194,10 @@
       position: fixed; inset: 0;
       background: rgba(4, 10, 18, 0.82);
       backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
+      display: flex; align-items: flex-start; justify-content: center;
       z-index: 1000;
       padding: 16px;
+      overflow-y: auto;
     }
     .modal-overlay.hidden { display: none; }
     .modal-box {
